@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SYSTEM_APOLOGY.EXE</title>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&display=swap");
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden}
+    body{
+      background:#929292;
+      color:#15192b;
+      font-family:"Noto Kufi Arabic","Noto Sans Arabic","Tahoma","Arial",sans-serif;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:geometricPrecision;
+      user-select:none;
+    }
+
+    .screen{
+      width:100%;
+      height:100dvh;
+      min-height:560px;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,.055), transparent 28%),
+        #929292;
+    }
+
+    /* Very subtle old-computer scanlines */
+    .screen:after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.12;
+      background:repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,.28) 0px,
+        rgba(0,0,0,.28) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      mix-blend-mode:multiply;
+    }
+
+    .window{
+      position:absolute;
+      top:2%;
+      left:4%;
+      width:92%;
+      border:3px solid #15192b;
+      background:#d0d0d0;
+      box-shadow:7px 7px 0 #15192b;
+      z-index:5;
+      padding:0;
+    }
+
+    .titlebar{
+      height:50px;
+      display:flex;
+      align-items:center;
+      gap:18px;
+      padding:8px 18px;
+      border-bottom:3px solid #15192b;
+      direction:ltr;
+    }
+
+    .lights{
+      width:82px;
+      height:32px;
+      border:3px solid #15192b;
+      border-radius:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      flex:none;
+      background:#d5d5d5;
+    }
+    .light{
+      width:20px;height:20px;border-radius:50%;
+      border:2px solid #15192b;
+    }
+    .green{background:#29bf58}
+    .yellow{background:#e3b53e}
+    .red{background:#d85c5c}
+
+    .title{
+      height:32px;
+      border:3px solid #15192b;
+      background:#dedede;
+      padding:4px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:"Noto Kufi Arabic","Tahoma",sans-serif;
+      font-size:clamp(12px,3vw,23px);
+      font-weight:800;
+      letter-spacing:.1px;
+      line-height:1;
+      text-shadow:1px 1px 0 #fff;
+      flex:1;
+      white-space:nowrap;
+    }
+
+    .title span{margin-left:8px}
+
+    .message{
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 18px 5px;
+      text-align:center;
+      font-size:clamp(15px,4vw,30px);
+      font-weight:800;
+      line-height:1.8;
+      letter-spacing:-.2px;
+      text-shadow:1px 1px 0 #fff;
+    }
+
+    .message .emoji{
+      font-size:1em;
+      margin-left:8px;
+    }
+
+    .progress-wrap{
+      margin:0 24px 14px;
+      height:44px;
+      border:3px solid #15192b;
+      background:#c9c9c9;
+      padding:4px;
+    }
+    .progress{
+      height:100%;
+      width:0%;
+      background:
+        repeating-linear-gradient(
+          45deg,
+          #252b42 0px,
+          #252b42 16px,
+          #15192b 16px,
+          #15192b 30px
+        );
+      transition:width .08s linear;
+    }
+
+    .progress-wrap.empty .progress{display:none}
+
+    .icons{
+      position:absolute;
+      top:25%;
+      left:13%;
+      right:13%;
+      height:48%;
+      z-index:2;
+    }
+
+    .icon{
+      position:absolute;
+      width:125px;
+      text-align:center;
+      opacity:1;
+      transform:translateY(0) scale(1);
+      transition:opacity .5s ease,transform .5s ease;
+    }
+    .icon.show{
+      opacity:1;
+      transform:translateY(0) scale(1);
+    }
+
+    .icon-box{
+      width:84px;
+      height:84px;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:3px solid #15192b;
+      background:#bdbdbd;
+      box-shadow:5px 5px 0 #15192b;
+      font-size:42px;
+    }
+
+    .icon-label{
+      display:inline-block;
+      margin-top:12px;
+      padding:5px 10px 7px;
+      border:3px solid #15192b;
+      background:#d7d7d7;
+      box-shadow:4px 4px 0 #15192b;
+      font-family:"Noto Kufi Arabic","Tahoma",sans-serif;
+      font-size:clamp(12px,3.2vw,22px);
+      font-weight:800;
+      line-height:1.65;
+      letter-spacing:-.2px;
+      white-space:nowrap;
+      text-shadow:1px 1px 0 #fff;
+    }
+
+    .i1{top:3%;left:0}
+    .i2{top:4%;left:39%}
+    .i3{top:7%;right:0}
+    .i4{top:51%;right:0}
+    .i5{top:53%;left:39%}
+    .i6{top:69%;left:4%;right:auto}
+
+    /* faint watermark, like the reference video */
+    .watermark{
+      position:absolute;
+      left:50%;
+      top:49%;
+      transform:translate(-50%,-50%);
+      width:65%;
+      text-align:center;
+      opacity:.075;
+      z-index:1;
+      pointer-events:none;
+      font-weight:900;
+      font-size:clamp(30px,9vw,72px);
+      line-height:1.05;
+      color:#35c3ce;
+      text-shadow:
+        22px 15px 0 #ed77a6,
+        -18px 9px 0 #7d71d7;
+    }
+    .watermark small{
+      display:block;
+      margin-top:15px;
+      font-size:.38em;
+      color:#ed77a6;
+      text-shadow:none;
+    }
+
+    .pause{
+      position:absolute;
+      bottom:3.2%;
+      left:5%;
+      width:58px;
+      height:44px;
+      border:3px solid #15192b;
+      background:#cfcfcf;
+      box-shadow:6px 6px 0 #15192b;
+      z-index:10;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+    }
+    .pause:active{transform:translate(3px,3px);box-shadow:3px 3px 0 #15192b}
+    .pause-bars{
+      display:flex;
+      gap:8px;
+    }
+    .pause-bars span{
+      width:7px;height:25px;background:#15192b;display:block;
+    }
+
+    .restart{
+      position:absolute;
+      bottom:3.2%;
+      right:5%;
+      padding:10px 14px;
+      border:3px solid #15192b;
+      background:#cfcfcf;
+      box-shadow:5px 5px 0 #15192b;
+      z-index:10;
+      font-weight:900;
+      font-family:inherit;
+      cursor:pointer;
+      opacity:0;
+      pointer-events:none;
+      transition:.25s;
+    }
+    .restart.visible{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    @media(max-width:600px){
+      .window{top:3%;box-shadow:5px 5px 0 #15192b}
+      .titlebar{height:52px;padding:6px 10px;gap:8px}
+      .lights{width:78px;height:32px;gap:6px}
+      .light{width:14px;height:14px}
+      .title{height:34px;padding:2px 7px;font-size:11px}
+      .message{min-height:83px;padding:10px 12px 5px;font-size:19px}
+      .progress-wrap{height:42px;margin:0 16px 14px}
+      .icons{left:9%;right:9%;top:28%;height:48%}
+      .icon{width:90px}
+      .icon-box{width:61px;height:61px;font-size:31px;box-shadow:4px 4px 0 #15192b}
+      .icon-label{margin-top:8px;padding:3px 6px 5px;font-size:13px;box-shadow:3px 3px 0 #15192b}
+      .pause{width:48px;height:48px}
+      .pause-bars span{height:21px;width:6px}
+      .i1{left:0}.i2{left:38%}.i3{right:0}
+      .i4{right:0}.i5{left:38%}.i6{left:2%;right:auto}
+    }
+  
+    /* Text appears after the first touch/click on the screen */
+    .tap-hidden .icon-label,
+    .tap-hidden .message {
+      opacity: 0;
+      transform: translateY(10px) scale(.98);
+    }
+
+    .icon-label.revealed,
+    .message.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .icon-label,
+    .message {
+      transition: opacity .45s ease, transform .45s ease;
+    }
+
+    .tap-hint {
+      position:absolute;
+      left:50%;
+      bottom:8%;
+      transform:translateX(-50%);
+      z-index:20;
+      padding:8px 14px;
+      border:2px solid #15192b;
+      background:#dcdcdc;
+      box-shadow:4px 4px 0 #15192b;
+      font-size:13px;
+      font-weight:800;
+      pointer-events:none;
+      animation:hintPulse 1.4s ease-in-out infinite;
+    }
+
+    .tap-hidden .tap-hint { opacity:1; }
+    .tap-hint { opacity:0; transition:opacity .3s ease; }
+
+    @keyframes hintPulse {
+      0%,100% { transform:translateX(-50%) translateY(0); }
+      50% { transform:translateX(-50%) translateY(-4px); }
+    }
+
+  
+    .message.reveal-item,
+    .icon-label.reveal-item {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transform: translateY(12px) scale(.97) !important;
+    }
+
+    .message.reveal-item.visible,
+    .icon-label.reveal-item.visible {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateY(0) scale(1) !important;
+    }
+
+    /* When a tap reveals an item, it stays visible. */
+    body .message.reveal-item.visible,
+    body .icon-label.reveal-item.visible {
+      display: inline-block;
+      pointer-events: auto;
+    }
+
+    body .message.reveal-item.visible {
+      display: flex;
+    }
+
+    .icons .icon {
+      z-index: 3;
+    }
+
+    .tap-hint {
+      font-family:"Noto Kufi Arabic","Tahoma",sans-serif;
+      font-weight:800;
+      line-height:1.6;
+    }
+
+  
+    .icon-box {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transform: scale(.85) !important;
+      transition: opacity .45s ease, transform .45s ease;
+    }
+
+    .icon-box.emoji-visible {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: scale(1) !important;
+    }
+
+  </style>
+
+<style>
+/* CLICK ONE-BY-ONE FIX */
+.icon-box,
+.icon-label,
+.message {
+  visibility: hidden;
+  opacity: 0;
+}
+.icon-box {
+  transform: scale(.85);
+}
+.icon-label {
+  transform: translateY(12px);
+}
+</style>
+
+</head>
+
+<body>
+  <main class="screen">
+
+    <section class="window">
+      <div class="titlebar">
+        <div class="lights">
+          <i class="light green"></i>
+          <i class="light yellow"></i>
+          <i class="light red"></i>
+        </div>
+        <div class="title">SYSTEM_APOLOGY.EXE <span>🕊️</span></div>
+      </div>
+
+      <div class="message" id="message">
+        <span class="emoji">🌹</span>
+        <span id="messageText">دزانم هەڵەم کردووە و دڵتم هێناشاندووە...</span>
+      </div>
+
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress" id="progress"></div>
+      </div>
+    </section>
+
+    <div class="watermark">
+      💠
+      <div>APOLOGY</div>
+      <small>سیستەمی داوای لێبووردن</small>
+    </div>
+
+    <section class="icons">
+      <div class="icon i1" data-at="1">
+        <div class="icon-box">🌹</div>
+        <div class="icon-label">بێ تو ئازیزم</div>
+      </div>
+
+      <div class="icon i2" data-at="3">
+        <div class="icon-box">💜</div>
+        <div class="icon-label">پەشیمانم</div>
+      </div>
+
+      <div class="icon i3" data-at="4">
+        <div class="icon-box">🕊️</div>
+        <div class="icon-label">ببوورە</div>
+      </div>
+
+      <div class="icon i4" data-at="7">
+        <div class="icon-box">🥺</div>
+        <div class="icon-label">لێم خۆشبه</div>
+      </div>
+
+      <div class="icon i5" data-at="9">
+        <div class="icon-box">💌</div>
+        <div class="icon-label">دڵم بۆتەوە</div>
+      </div>
+
+      <div class="icon i6" data-at="11">
+        <div class="icon-box">🥺</div>
+        <div class="icon-label">تکایە ببورە</div>
+      </div>
+    </section>
+
+    <button class="pause" id="pauseBtn" aria-label="Pause">
+      <span class="pause-bars"><span></span><span></span></span>
+    </button>
+
+    <button class="restart" id="restartBtn">↻ دووبارە</button>
+    <div class="tap-hint" id="tapHint">👆 دەست لە شاشەکە بدە</div>
+  </main>
+
+<script>
+  /*
+    SYSTEM_APOLOGY.EXE
+    --------------------------------
+    Everything is inside this file.
+    Upload this index.html directly to GitHub Pages.
+  */
+
+  const messages = [
+    { at: 0,  text: "دزانم هەڵەم کردووە و دڵتم هێناشاندووە...", emoji:"🌹", progress:0 },
+    { at: 2.7,text: "بەڵام هەموو شتێک بۆ ئەوەیە کە پێت بڵێم...", emoji:"💜", progress:24 },
+    { at: 5.1,text: "لە دڵەوە داوای لێبووردنت لێ دەکەم", emoji:"🕊️", progress:48 },
+    { at: 7.4,text: "تۆ بۆ من گرنگیت زۆرە...", emoji:"🥺", progress:67 },
+    { at: 10.1,text: "تکایە دڵم مەشکێنە، ببورە ❤️", emoji:"❤️", progress:86 },
+    { at: 12.7,text: "هەموو شتێک بە دڵسۆزی و خۆشەویستییە", emoji:"🌹", progress:100 }
+  ];
+
+  const DURATION = 14.2;
+  const textEl = document.getElementById("messageText");
+  const emojiEl = document.querySelector(".message .emoji");
+  const progress = document.getElementById("progress");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const icons = [...document.querySelectorAll(".icon")];
+
+  let start = performance.now();
+  let elapsed = 0;
+  let paused = false;
+  let lastMessage = -1;
+
+  function setMessage(index){
+    if(index < 0) return;
+    if(index !== lastMessage){
+      lastMessage = index;
+      textEl.animate(
+        [
+          {opacity:0, transform:"translateY(8px)"},
+          {opacity:1, transform:"translateY(0)"}
+        ],
+        {duration:420,easing:"ease-out"}
+      );
+      emojiEl.textContent = messages[index].emoji;
+      textEl.textContent = messages[index].text;
+    }
+  }
+
+  function updateIcons(time){
+    icons.forEach((el)=>{
+      el.classList.add("show");
+    });
+  }
+
+  function render(now){
+    if(!paused){
+      elapsed = (now - start) / 1000;
+
+      if(elapsed >= DURATION){
+        elapsed = DURATION;
+        paused = true;
+        pauseBtn.style.display = "none";
+        restartBtn.classList.add("visible");
+      }
+
+      let current = 0;
+      for(let i=0;i<messages.length;i++){
+        if(elapsed >= messages[i].at) current = i;
+      }
+
+      setMessage(current);
+      progress.style.width = Math.min(100, (elapsed / DURATION) * 100) + "%";
+      updateIcons(elapsed);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  pauseBtn.addEventListener("click",()=>{
+    paused = !paused;
+    if(!paused){
+      start = performance.now() - elapsed * 1000;
+      pauseBtn.querySelector(".pause-bars").innerHTML =
+        "<span></span><span></span>";
+    }else{
+      pauseBtn.querySelector(".pause-bars").innerHTML =
+        "<span style='width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:17px solid #15192b'></span>";
+    }
+  });
+
+  restartBtn.addEventListener("click",()=>{
+    elapsed = 0;
+    lastMessage = -1;
+    paused = false;
+    start = performance.now();
+    pauseBtn.style.display = "flex";
+    restartBtn.classList.remove("visible");
+    pauseBtn.querySelector(".pause-bars").innerHTML =
+      "<span></span><span></span>";
+  });
+
+  icons.forEach(el => el.classList.add("show"));
+
+  const screen = document.querySelector(".screen");
+const tapHint = document.getElementById("tapHint");
+const mainMessage = document.querySelector(".message");
+const labels = [...document.querySelectorAll(".icon-label")];
+const boxes = [...document.querySelectorAll(".icon-box")];
+
+let step = 0;
+let lastTap = 0;
+
+function hideAll() {
+  mainMessage.style.opacity = "0";
+  mainMessage.style.visibility = "hidden";
+
+  labels.forEach(el => {
+    el.style.opacity = "0";
+    el.style.visibility = "hidden";
+  });
+
+  boxes.forEach(el => {
+    el.style.opacity = "0";
+    el.style.visibility = "hidden";
+  });
+}
+
+function reveal(el, isBox = false) {
+  el.style.visibility = "visible";
+  el.animate(
+    [
+      { opacity: 0, transform: isBox ? "scale(.75)" : "translateY(12px)" },
+      { opacity: 1, transform: isBox ? "scale(1)" : "translateY(0)" }
+    ],
+    {
+      duration: 420,
+      easing: "ease-out",
+      fill: "forwards"
+    }
+  );
+  el.style.opacity = "1";
+}
+
+function tap(e) {
+  const now = Date.now();
+  if (now - lastTap < 350) return;
+  lastTap = now;
+
+  // First click: show the top/main text only.
+  if (step === 0) {
+    reveal(mainMessage);
+    step = 1;
+  } else {
+    // Every next click: exactly ONE emoji + its label.
+    const i = step - 1;
+
+    if (i < boxes.length) {
+      reveal(boxes[i], true);
+      reveal(labels[i]);
+      step++;
+    }
+  }
+
+  if (tapHint) {
+    if (step >= labels.length + 1) {
+      tapHint.textContent = "✨ تەواو بوو";
+      setTimeout(() => tapHint.remove(), 1200);
+    } else {
+      tapHint.textContent = "👆 جارێکی تر دەست لە شاشە بدە";
+    }
+  }
+}
+
+hideAll();
+
+// pointerdown works on mobile and desktop without the double-fire
+// that can happen when pointerdown + touchstart are both attached.
+screen.addEventListener("pointerdown", tap, { passive: true });
+
+setMessage(0);
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
